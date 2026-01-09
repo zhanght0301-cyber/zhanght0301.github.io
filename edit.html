@@ -3,29 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>编辑个人论文信息</title>
+    <title>编辑个人信息与多文章</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/favicon.ico/favicon.ico" type="image/x-icon">
     <style>
-        /* 全局样式：匹配主页面配色 */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "微软雅黑", "Arial", sans-serif;
-        }
-        body {
+        /* 登录验证面板（编辑页也需要登录） */
+        .login-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-color: #f8f9fa;
-            color: #333;
-            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .login-card {
+            width: 90%;
+            max-width: 400px;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .login-card h2 {
+            color: #3498db;
+            margin-bottom: 1.5rem;
+        }
+        .login-card input {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 1rem 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        .login-card button {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .login-card button:hover {
+            background-color: #27ae60;
+        }
+        .login-error {
+            color: #e74c3c;
+            margin-top: 1rem;
+            display: none;
         }
 
-        /* 导航栏：返回按钮+匹配风格 */
+        /* 导航栏 */
         .navbar {
             background-color: white;
             border-bottom: 1px solid #eee;
             padding: 1rem 0;
             box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+            display: none; /* 登录后显示 */
         }
         .navbar-wrap {
             width: 90%;
@@ -53,7 +95,7 @@
             text-decoration: underline;
         }
 
-        /* 编辑表单容器：匹配主页面视觉 */
+        /* 编辑容器 */
         .edit-container {
             width: 90%;
             max-width: 800px;
@@ -62,16 +104,18 @@
             padding: 2rem;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: none; /* 登录后显示 */
         }
         .edit-container h2 {
             color: #3498db;
             margin-bottom: 1.5rem;
             text-align: center;
             font-size: 1.4rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+        }
+        .basic-info {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
         }
         .form-group {
             margin-bottom: 1.2rem;
@@ -83,8 +127,7 @@
             font-weight: 500;
             font-size: 0.9rem;
         }
-        .form-group input,
-        .form-group textarea {
+        .form-group input, .form-group textarea {
             width: 100%;
             padding: 0.8rem;
             border: 1px solid #ddd;
@@ -92,20 +135,58 @@
             font-size: 0.95rem;
             resize: vertical;
         }
-        .form-group textarea {
-            min-height: 80px;
+
+        /* 多文章编辑区域 */
+        .articles-editor {
+            margin-top: 2rem;
         }
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+        .articles-editor h3 {
+            color: #3498db;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
+        .btn-add-article {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+        .btn-add-article:hover {
+            background-color: #2980b9;
+        }
+        .article-item-edit {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        .btn-delete-article {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.3rem 0.6rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .btn-delete-article:hover {
+            background-color: #c0392b;
+        }
+
         .form-buttons {
             display: flex;
             gap: 1rem;
             justify-content: center;
-            margin-top: 1.5rem;
+            margin-top: 2rem;
         }
         .btn {
             padding: 0.8rem 2rem;
@@ -113,13 +194,12 @@
             border-radius: 6px;
             font-size: 0.95rem;
             cursor: pointer;
-            transition: background-color 0.2s ease;
         }
-        .btn-submit {
+        .btn-save {
             background-color: #2ecc71;
             color: white;
         }
-        .btn-submit:hover {
+        .btn-save:hover {
             background-color: #27ae60;
         }
         .btn-reset {
@@ -130,7 +210,7 @@
             background-color: #c0392b;
         }
 
-        /* 响应式适配 */
+        /* 响应式 */
         @media (max-width: 768px) {
             .form-buttons {
                 flex-direction: column;
@@ -142,47 +222,58 @@
     </style>
 </head>
 <body>
-    <!-- 导航栏：返回主页面 -->
-    <nav class="navbar">
+    <!-- 登录面板 -->
+    <div class="login-panel" id="loginPanel">
+        <div class="login-card">
+            <h2><i class="fas fa-lock"></i> 编辑页登录</h2>
+            <input type="password" id="loginPwd" placeholder="请输入登录密码">
+            <button id="loginBtn">登录</button>
+            <div class="login-error" id="loginError">密码错误，请重新输入（正确密码：6A212）</div>
+        </div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="navbar" id="navbar">
         <div class="navbar-wrap">
-            <h2 class="navbar-title">编辑个人论文信息</h2>
+            <h2 class="navbar-title">编辑个人信息与多文章</h2>
             <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> 返回成果展示页</a>
         </div>
     </nav>
 
     <!-- 编辑表单 -->
-    <div class="edit-container">
-        <h2><i class="fas fa-edit"></i> 编辑/添加个人论文信息</h2>
+    <div class="edit-container" id="editContainer">
+        <h2><i class="fas fa-edit"></i> 编辑/添加个人信息与多文章</h2>
         <form id="memberForm">
             <input type="hidden" id="memberId" value="">
 
-            <div class="form-group">
-                <label for="name">姓名 *</label>
-                <input type="text" id="name" required placeholder="请输入你的姓名">
+            <!-- 基本信息 -->
+            <div class="basic-info">
+                <h3><i class="fas fa-user"></i> 基本信息</h3>
+                <div class="form-group">
+                    <label for="name">姓名 *</label>
+                    <input type="text" id="name" required placeholder="请输入你的姓名">
+                </div>
+                <div class="form-group">
+                    <label for="studentId">学号 *</label>
+                    <input type="text" id="studentId" required placeholder="请输入你的学号">
+                </div>
+                <div class="form-group">
+                    <label for="researchField">研究方向 *</label>
+                    <input type="text" id="researchField" required placeholder="请输入你的研究方向">
+                </div>
             </div>
-            <div class="form-group">
-                <label for="studentId">学号 *</label>
-                <input type="text" id="studentId" required placeholder="请输入你的学号">
-            </div>
-            <div class="form-group">
-                <label for="researchField">研究方向 *</label>
-                <input type="text" id="researchField" required placeholder="请输入你的研究方向">
-            </div>
-            <div class="form-group">
-                <label for="articleTitle">文章标题 *</label>
-                <input type="text" id="articleTitle" required placeholder="请输入文章标题">
-            </div>
-            <div class="form-group">
-                <label for="articleSummary">文章摘要</label>
-                <textarea id="articleSummary" placeholder="请输入文章简要介绍（可选）"></textarea>
-            </div>
-            <div class="form-group">
-                <label for="articleLink">文章链接 *</label>
-                <input type="text" id="articleLink" required placeholder="PDF在线链接/知网链接/百度网盘链接等">
+
+            <!-- 多文章编辑区域 -->
+            <div class="articles-editor">
+                <h3><i class="fas fa-file-alt"></i> 文章管理（支持添加多篇）</h3>
+                <button type="button" class="btn-add-article" id="addArticleBtn">+ 添加新文章</button>
+                <div id="articlesList">
+                    <!-- 文章项动态生成 -->
+                </div>
             </div>
 
             <div class="form-buttons">
-                <button type="submit" class="btn btn-submit">保存信息</button>
+                <button type="submit" class="btn btn-save">保存所有信息</button>
                 <button type="reset" class="btn btn-reset">清空表单</button>
             </div>
         </form>
@@ -191,7 +282,42 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase.js"></script>
     <script>
-        // Firebase配置
+        // ========== 1. 编辑页登录逻辑 ==========
+        const loginPanel = document.getElementById('loginPanel');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginPwd = document.getElementById('loginPwd');
+        const loginError = document.getElementById('loginError');
+        const navbar = document.getElementById('navbar');
+        const editContainer = document.getElementById('editContainer');
+
+        // 登录验证
+        loginBtn.addEventListener('click', () => {
+            const pwd = loginPwd.value.trim();
+            if (pwd === '6A212') {
+                loginPanel.style.display = 'none';
+                navbar.style.display = 'block';
+                editContainer.style.display = 'block';
+                localStorage.setItem('labLoginStatus', 'true');
+                // 加载数据并初始化编辑页
+                initEditPage();
+            } else {
+                loginError.style.display = 'block';
+                setTimeout(() => loginError.style.display = 'none', 3000);
+            }
+        });
+
+        // 刷新页检查登录状态
+        window.onload = () => {
+            const isLogin = localStorage.getItem('labLoginStatus') === 'true';
+            if (isLogin) {
+                loginPanel.style.display = 'none';
+                navbar.style.display = 'block';
+                editContainer.style.display = 'block';
+                initEditPage();
+            }
+        };
+
+        // ========== 2. Firebase配置 + 多文章编辑逻辑 ==========
         const firebaseConfig = {
             apiKey: "AIzaSyCuOty9CHoB3xeIK05IkKfH_djzjgf2zSg",
             authDomain: "lab-6a212-articles2.firebaseapp.com",
@@ -206,14 +332,16 @@
         const db = firebase.database().ref("labMembers");
 
         let membersData = [];
+        let currentArticles = []; // 当前成员的文章列表
         const urlParams = new URLSearchParams(window.location.search);
-        const currentMemberId = urlParams.get('id');
+        const currentMemberId = urlParams.get('id'); // new 或 成员ID
 
-        // 加载数据并回显
-        function loadAndEchoData() {
+        // 初始化编辑页（加载数据+生成文章编辑项）
+        function initEditPage() {
             db.once("value", (snapshot) => {
                 membersData = snapshot.val() ? Object.values(snapshot.val()) : [];
-
+                
+                // 编辑现有成员：回显基本信息+多文章
                 if (currentMemberId !== 'new') {
                     const member = membersData.find(m => m.id === parseInt(currentMemberId));
                     if (member) {
@@ -221,68 +349,73 @@
                         document.getElementById('name').value = member.name;
                         document.getElementById('studentId').value = member.studentId;
                         document.getElementById('researchField').value = member.researchField;
-
-                        const firstArticle = member.articles[0] || {};
-                        document.getElementById('articleTitle').value = firstArticle.title || '';
-                        document.getElementById('articleSummary').value = firstArticle.summary || '';
-                        document.getElementById('articleLink').value = firstArticle.link || '';
+                        // 初始化文章列表
+                        currentArticles = member.articles || [];
                     }
+                } else {
+                    // 新增成员：初始化空文章列表（默认1篇）
+                    currentArticles = [{ id: Date.now(), title: '', summary: '', link: '' }];
                 }
+                // 渲染文章编辑项
+                renderArticleEditItems();
             });
         }
 
-        // 表单提交逻辑
+        // 生成文章编辑项
+        function renderArticleEditItems() {
+            const articlesList = document.getElementById('articlesList');
+            articlesList.innerHTML = '';
+
+            currentArticles.forEach((article, index) => {
+                const articleItem = document.createElement('div');
+                articleItem.className = 'article-item-edit';
+                articleItem.innerHTML = `
+                    <button type="button" class="btn-delete-article" data-index="${index}">删除</button>
+                    <div class="form-group">
+                        <label>文章标题 ${index+1} *</label>
+                        <input type="text" class="article-title" value="${article.title || ''}" required placeholder="请输入文章标题">
+                    </div>
+                    <div class="form-group">
+                        <label>文章摘要 ${index+1}</label>
+                        <textarea class="article-summary" placeholder="请输入文章摘要">${article.summary || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>文章链接 ${index+1} *</label>
+                        <input type="text" class="article-link" value="${article.link || ''}" required placeholder="请输入文章链接">
+                    </div>
+                `;
+                articlesList.appendChild(articleItem);
+
+                // 绑定删除文章事件
+                articleItem.querySelector('.btn-delete-article').addEventListener('click', (e) => {
+                    const delIndex = parseInt(e.target.dataset.index);
+                    if (currentArticles.length > 1) { // 至少保留1篇
+                        currentArticles.splice(delIndex, 1);
+                        renderArticleEditItems();
+                    } else {
+                        alert('至少保留一篇文章哦～');
+                    }
+                });
+            });
+        }
+
+        // 添加新文章按钮
+        document.getElementById('addArticleBtn').addEventListener('click', () => {
+            currentArticles.push({ id: Date.now(), title: '', summary: '', link: '' });
+            renderArticleEditItems();
+        });
+
+        // 表单提交：保存基本信息+多文章
         document.getElementById('memberForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
-            const memberId = parseInt(document.getElementById('memberId').value);
+            // 收集基本信息
+            const memberId = document.getElementById('memberId').value;
             const name = document.getElementById('name').value.trim();
             const studentId = document.getElementById('studentId').value.trim();
             const researchField = document.getElementById('researchField').value.trim();
-            const articleTitle = document.getElementById('articleTitle').value.trim();
-            const articleSummary = document.getElementById('articleSummary').value.trim();
-            const articleLink = document.getElementById('articleLink').value.trim();
 
-            const articleData = { title: articleTitle, summary: articleSummary, link: articleLink };
-
-            if (memberId) {
-                // 编辑现有成员
-                const index = membersData.findIndex(m => m.id === memberId);
-                if (index !== -1) {
-                    membersData[index] = {
-                        ...membersData[index],
-                        name, studentId, researchField,
-                        articles: [articleData, ...membersData[index].articles.slice(1)]
-                    };
-                }
-            } else {
-                // 添加新成员
-                const newId = membersData.length > 0 ? Math.max(...membersData.map(m => m.id)) + 1 : 1;
-                membersData.push({
-                    id: newId,
-                    name, studentId, researchField,
-                    articles: [articleData]
-                });
-            }
-
-            // 同步到Firebase
-            const dataObj = {};
-            membersData.forEach(member => {
-                dataObj[member.id] = member;
-            });
-            db.set(dataObj)
-                .then(() => {
-                    alert('信息保存成功！');
-                    window.location.href = 'index.html';
-                })
-                .catch((error) => {
-                    console.error("保存失败：", error);
-                    alert('保存失败，请重试！');
-                });
-        });
-
-        // 初始化
-        loadAndEchoData();
-    </script>
-</body>
-</html>
+            // 收集所有文章信息
+            const articleInputs = document.querySelectorAll('.article-item-edit');
+            const newArticles = [];
+            articleInputs.forEach((item
