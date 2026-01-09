@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>6A212实验室 - 论文成果展示</title>
+    <title>6A212实验室 - 论文成果展示（完整版）</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/favicon.ico/favicon.ico" type="image/x-icon">
     <style>
@@ -19,60 +19,6 @@
             background-color: #f8f9fa;
             color: #333;
             line-height: 1.6;
-        }
-
-        /* 登录面板（默认显示，验证后隐藏） */
-        .login-panel {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        .login-card {
-            width: 90%;
-            max-width: 400px;
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        .login-card h2 {
-            color: #3498db;
-            margin-bottom: 1.5rem;
-        }
-        .login-card input {
-            width: 100%;
-            padding: 0.8rem;
-            margin: 1rem 0;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-        }
-        .login-card button {
-            width: 100%;
-            padding: 0.8rem;
-            background-color: #2ecc71;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-        .login-card button:hover {
-            background-color: #27ae60;
-        }
-        .login-error {
-            color: #e74c3c;
-            margin-top: 1rem;
-            display: none;
         }
 
         /* 导航栏 */
@@ -119,7 +65,6 @@
             width: 90%;
             max-width: 1200px;
             margin: 2rem auto 4rem;
-            display: none; /* 登录后显示 */
         }
         .members-grid {
             display: grid;
@@ -133,10 +78,27 @@
             border-radius: 8px;
             padding: 1.5rem;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            cursor: pointer;
+            position: relative;
         }
         .member-card:hover {
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        /* 新增：删除成员按钮（右上角） */
+        .btn-delete-member {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.3rem 0.6rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            z-index: 10;
+        }
+        .btn-delete-member:hover {
+            background-color: #c0392b;
         }
         .member-info h2 {
             font-size: 1.2rem;
@@ -154,7 +116,7 @@
             border-bottom: 1px solid #eee;
         }
 
-        /* 多文章列表样式 */
+        /* 多文章列表样式 + 分类标签 + PDF标签 */
         .member-articles h3 {
             color: #3498db;
             font-size: 1rem;
@@ -168,7 +130,31 @@
             padding: 0.8rem 1rem;
             border-radius: 6px;
             margin-bottom: 0.8rem;
-            position: relative;
+        }
+        .article-item .tag-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.3rem;
+        }
+        /* 分类标签样式 */
+        .category-tag {
+            background-color: #3498db;
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+        }
+        .category-tag.journal { background-color: #2ecc71; }
+        .category-tag.conference { background-color: #f39c12; }
+        .category-tag.working { background-color: #9b59b6; }
+        .category-tag.thesis { background-color: #1abc9c; }
+        /* PDF标签样式 */
+        .pdf-tag {
+            background-color: #e74c3c;
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
         }
         .article-item h4 {
             font-size: 0.95rem;
@@ -187,14 +173,20 @@
             display: flex;
             align-items: center;
             gap: 0.3rem;
+            cursor: pointer;
         }
         .article-item a:hover {
             text-decoration: underline;
         }
 
-        /* 编辑按钮 */
-        .btn-edit {
+        /* 按钮组：编辑 + 排序提示 */
+        .member-buttons {
             margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .btn-edit {
             background-color: #2ecc71;
             color: white;
             padding: 0.5rem 1rem;
@@ -207,6 +199,11 @@
         .btn-edit:hover {
             background-color: #27ae60;
         }
+        .sort-tip {
+            font-size: 0.7rem;
+            color: #666;
+            text-align: center;
+        }
 
         /* 页脚 */
         footer {
@@ -215,11 +212,57 @@
             text-align: center;
             padding: 1.5rem 0;
             margin-top: 2rem;
-            display: none; /* 登录后显示 */
         }
         footer p {
             color: #666;
             font-size: 0.9rem;
+        }
+
+        /* 新增：PDF预览模态框 */
+        .pdf-preview-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        .modal-close {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-close:hover {
+            background-color: #c0392b;
+        }
+        .pdf-preview-container {
+            width: 100%;
+            max-width: 1200px;
+            height: 80vh;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        #pdfViewer {
+            width: 100%;
+            height: 100%;
         }
 
         /* 响应式 */
@@ -232,24 +275,24 @@
             .members-grid {
                 grid-template-columns: 1fr;
             }
+            .pdf-preview-modal {
+                padding: 1rem;
+            }
+            .modal-close {
+                top: 1rem;
+                right: 1rem;
+                width: 30px;
+                height: 30px;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- 登录面板 -->
-    <div class="login-panel" id="loginPanel">
-        <div class="login-card">
-            <h2><i class="fas fa-lock"></i> 实验室成果页登录</h2>
-            <input type="password" id="loginPwd" placeholder="请输入登录密码">
-            <button id="loginBtn">登录</button>
-            <div class="login-error" id="loginError">密码错误，请重新输入（正确密码：6A212）</div>
-        </div>
-    </div>
-
     <!-- 导航栏 -->
     <nav class="navbar">
         <div class="navbar-wrap">
-            <h2 class="navbar-title">6A212实验室 - 论文成果展示</h2>
+            <h2 class="navbar-title">6A212实验室 - 论文成果展示（完整版）</h2>
             <button class="btn-add-member" onclick="window.location.href='edit.html?id=new'">
                 <i class="fas fa-user-plus"></i> 添加新成员
             </button>
@@ -257,76 +300,74 @@
     </nav>
 
     <!-- 成员成果展示区 -->
-    <div class="container" id="mainContainer">
+    <div class="container">
         <div class="members-grid" id="membersContainer">
             <!-- 卡片由JS自动渲染 -->
         </div>
     </div>
 
-    <footer id="footer">
+    <footer>
         <p>6A212实验小组成果展示 | 最后更新时间：<span id="updateTime"></span></p>
+        <p>支持多文章编辑/排序/分类 | PDF上传/预览 | 成员删除 | 数据存储于Firebase云端</p>
     </footer>
+
+    <!-- 新增：PDF预览模态框 -->
+    <div class="pdf-preview-modal" id="pdfPreviewModal">
+        <button class="modal-close" id="modalCloseBtn"><i class="fas fa-times"></i></button>
+        <div class="pdf-preview-container">
+            <iframe id="pdfViewer" frameborder="0"></iframe>
+        </div>
+    </div>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase.js"></script>
     <script>
-        // ========== 1. 登录验证逻辑 ==========
-        const loginPanel = document.getElementById('loginPanel');
-        const loginBtn = document.getElementById('loginBtn');
-        const loginPwd = document.getElementById('loginPwd');
-        const loginError = document.getElementById('loginError');
-        const mainContainer = document.getElementById('mainContainer');
-        const footer = document.getElementById('footer');
-
-        // 登录按钮点击事件
-        loginBtn.addEventListener('click', () => {
-            const pwd = loginPwd.value.trim();
-            if (pwd === '6A212') {
-                // 密码正确：隐藏登录面板，显示内容
-                loginPanel.style.display = 'none';
-                mainContainer.style.display = 'block';
-                footer.style.display = 'block';
-                // 存储登录状态（刷新后免登，可选）
-                localStorage.setItem('labLoginStatus', 'true');
-                // 加载成员数据
-                loadMembers();
-            } else {
-                // 密码错误：显示提示
-                loginError.style.display = 'block';
-                setTimeout(() => {
-                    loginError.style.display = 'none';
-                }, 3000);
-            }
-        });
-
-        // 刷新页面时检查登录状态（可选）
-        window.onload = () => {
-            const isLogin = localStorage.getItem('labLoginStatus') === 'true';
-            if (isLogin) {
-                loginPanel.style.display = 'none';
-                mainContainer.style.display = 'block';
-                footer.style.display = 'block';
-                loadMembers();
-            }
-        };
-
-        // ========== 2. Firebase配置 + 多文章数据逻辑 ==========
+        // Firebase配置
         const firebaseConfig = {
             apiKey: "AIzaSyCuOty9CHoB3xeIK05IkKfH_djzjgf2zSg",
             authDomain: "lab-6a212-articles2.firebaseapp.com",
             databaseURL: "https://lab-6a212-articles2-default-rtdb.firebaseio.com/",
             projectId: "lab-6a212-articles2",
-            storageBucket: "lab-6a212-articles2.firebasestorage.app",
+            storageBucket: "lab-6a212-articles2.appspot.com",
             messagingSenderId: "267255024779",
             appId: "1:267255024779:web:6e75a23f6a58c8ae93588e",
             measurementId: "G-NSSTFKD72H"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref("labMembers");
+        const storage = firebase.storage();
 
         let membersData = [];
 
-        // 加载成员+多文章数据
+        // 新增：PDF预览相关DOM
+        const pdfPreviewModal = document.getElementById('pdfPreviewModal');
+        const pdfViewer = document.getElementById('pdfViewer');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+        // 新增：关闭PDF预览模态框
+        modalCloseBtn.addEventListener('click', () => {
+            pdfPreviewModal.style.display = 'none';
+            pdfViewer.src = '';
+        });
+
+        // 新增：点击模态框背景关闭
+        pdfPreviewModal.addEventListener('click', (e) => {
+            if (e.target === pdfPreviewModal) {
+                modalCloseBtn.click();
+            }
+        });
+
+        // 新增：打开PDF预览
+        function openPdfPreview(pdfUrl) {
+            // 使用PDF.js的在线预览服务（无需本地部署）
+            const pdfJsUrl = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(pdfUrl)}`;
+            pdfViewer.src = pdfJsUrl;
+            pdfPreviewModal.style.display = 'flex';
+            // 禁止页面滚动
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 加载成员+多文章+分类+排序数据
         function loadMembers() {
             db.on("value", (snapshot) => {
                 const data = snapshot.val();
@@ -337,8 +378,8 @@
                         studentId: "2023001",
                         researchField: "机器学习与数据挖掘",
                         articles: [
-                            { id: 101, title: "基于深度学习的实验数据分类研究", summary: "准确率提升15%", link: "#" },
-                            { id: 102, title: "实验室数据预处理方法优化", summary: "降低数据误差率", link: "#" }
+                            { id: 101, title: "基于深度学习的实验数据分类研究", summary: "准确率提升15%", link: "#", isPdf: false, category: "journal", sort: 1 },
+                            { id: 102, title: "实验室数据预处理方法优化", summary: "降低数据误差率", link: "#", isPdf: false, category: "conference", sort: 2 }
                         ]
                     },
                     {
@@ -347,34 +388,61 @@
                         studentId: "2023002",
                         researchField: "实验装置与算法优化",
                         articles: [
-                            { id: 201, title: "XX实验装置的精度提升方案", summary: "精度提升20%", link: "#" }
+                            { id: 201, title: "XX实验装置的精度提升方案", summary: "精度提升20%", link: "#", isPdf: false, category: "thesis", sort: 1 }
                         ]
                     }
                 ];
+                // 对每个成员的文章按sort字段排序（数字越小越靠前）
+                membersData.forEach(member => {
+                    member.articles = member.articles.sort((a, b) => a.sort - b.sort);
+                });
                 renderMembers();
             });
         }
 
-        // 渲染成员+多文章卡片
+        // 渲染成员+多文章+分类+PDF标签+删除按钮
         function renderMembers() {
             const container = document.getElementById('membersContainer');
             container.innerHTML = '';
 
             membersData.forEach(member => {
                 let articlesHtml = '';
-                // 遍历多篇文章渲染
+                // 遍历排序后的文章渲染
                 member.articles.forEach(article => {
+                    // 分类标签：根据category字段生成不同样式的标签
+                    const categoryText = {
+                        journal: "已发表期刊论文",
+                        conference: "已发表会议论文",
+                        working: "未发表工作论文",
+                        thesis: "学位论文"
+                    }[article.category] || "未分类";
+                    const categoryClass = `category-tag ${article.category || ''}`;
+                    // PDF标签
+                    const pdfTag = article.isPdf ? '<span class="pdf-tag">PDF</span>' : '';
+                    // 链接点击事件：PDF预览，非PDF跳转
+                    const linkClick = article.isPdf 
+                        ? `onclick="openPdfPreview('${article.link}')"` 
+                        : `href="${article.link}" target="_blank"`;
+
                     articlesHtml += `
                         <div class="article-item">
+                            <div class="tag-group">
+                                <span class="${categoryClass}">${categoryText}</span>
+                                ${pdfTag}
+                            </div>
                             <h4>${article.title}</h4>
                             <p>${article.summary || '无摘要'}</p>
-                            <a href="${article.link}" target="_blank"><i class="fas fa-link"></i> 查看完整文章</a>
+                            <a ${linkClick}><i class="fas fa-link"></i> ${article.isPdf ? '预览PDF' : '查看链接'}</a>
                         </div>
                     `;
                 });
 
                 const cardHtml = `
                     <div class="member-card">
+                        <!-- 新增：删除成员按钮 -->
+                        <button class="btn-delete-member" onclick="deleteMember(${member.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
                         <div class="member-info">
                             <h2><i class="fas fa-user-graduate"></i> ${member.name}</h2>
                             <p>学号：${member.studentId} | 研究方向：${member.researchField}</p>
@@ -383,14 +451,44 @@
                             <h3><i class="fas fa-file-alt"></i> 发表/完成文章（共${member.articles.length}篇）</h3>
                             ${articlesHtml}
                         </div>
-                        <button class="btn-edit" onclick="window.location.href='edit.html?id=${member.id}'">编辑我的信息/文章</button>
+                        <div class="member-buttons">
+                            <button class="btn-edit" onclick="window.location.href='edit.html?id=${member.id}'">编辑我的信息/文章</button>
+                            <div class="sort-tip"><i class="fas fa-sort"></i> 编辑页可调整文章顺序</div>
+                        </div>
                     </div>
                 `;
                 container.innerHTML += cardHtml;
             });
 
             document.getElementById('updateTime').textContent = new Date().toLocaleString();
+            // 恢复页面滚动
+            document.body.style.overflow = 'auto';
         }
+
+        // 新增：删除成员（含数据库记录）
+        function deleteMember(memberId) {
+            if (confirm(`确定要删除该成员的所有信息吗？删除后无法恢复！`)) {
+                // 从本地数据中删除
+                membersData = membersData.filter(member => member.id !== memberId);
+                // 同步到Firebase数据库
+                const dataObj = {};
+                membersData.forEach(member => {
+                    dataObj[member.id] = member;
+                });
+                db.set(dataObj)
+                    .then(() => {
+                        alert('成员删除成功！');
+                        renderMembers();
+                    })
+                    .catch((error) => {
+                        console.error("删除失败：", error);
+                        alert('删除失败，请重试！');
+                    });
+            }
+        }
+
+        // 初始化加载
+        loadMembers();
     </script>
 </body>
 </html>
