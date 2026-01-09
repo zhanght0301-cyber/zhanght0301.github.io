@@ -3,71 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>编辑个人信息与多文章</title>
+    <title>编辑个人信息与多文章（完整版）</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/favicon.ico/favicon.ico" type="image/x-icon">
     <style>
-        /* 登录验证面板（编辑页也需要登录） */
-        .login-panel {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        .login-card {
-            width: 90%;
-            max-width: 400px;
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        .login-card h2 {
-            color: #3498db;
-            margin-bottom: 1.5rem;
-        }
-        .login-card input {
-            width: 100%;
-            padding: 0.8rem;
-            margin: 1rem 0;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-        }
-        .login-card button {
-            width: 100%;
-            padding: 0.8rem;
-            background-color: #2ecc71;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-        .login-card button:hover {
-            background-color: #27ae60;
-        }
-        .login-error {
-            color: #e74c3c;
-            margin-top: 1rem;
-            display: none;
-        }
-
         /* 导航栏 */
         .navbar {
             background-color: white;
             border-bottom: 1px solid #eee;
             padding: 1rem 0;
             box-shadow: 0 1px 5px rgba(0,0,0,0.05);
-            display: none; /* 登录后显示 */
         }
         .navbar-wrap {
             width: 90%;
@@ -104,7 +49,6 @@
             padding: 2rem;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            display: none; /* 登录后显示 */
         }
         .edit-container h2 {
             color: #3498db;
@@ -127,7 +71,7 @@
             font-weight: 500;
             font-size: 0.9rem;
         }
-        .form-group input, .form-group textarea {
+        .form-group input, .form-group textarea, .form-group select {
             width: 100%;
             padding: 0.8rem;
             border: 1px solid #ddd;
@@ -136,7 +80,7 @@
             resize: vertical;
         }
 
-        /* 多文章编辑区域 */
+        /* 多文章编辑区域 + PDF上传 + 分类 + 排序 */
         .articles-editor {
             margin-top: 2rem;
         }
@@ -165,10 +109,51 @@
             border-radius: 6px;
             margin-bottom: 1rem;
             position: relative;
+            border-left: 3px solid #3498db;
         }
-        .btn-delete-article {
+        /* 新增：文章排序按钮组（右上角） */
+        .sort-buttons {
             position: absolute;
             top: 0.5rem;
+            right: 0.5rem;
+            display: flex;
+            gap: 0.3rem;
+        }
+        .btn-sort {
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.3rem 0.6rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-sort:hover {
+            background-color: #e67e22;
+        }
+        .btn-sort:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        /* 新增：文章分类下拉框 */
+        .category-group {
+            margin-top: 0.5rem;
+        }
+        .category-group label {
+            font-size: 0.85rem;
+            margin-bottom: 0.3rem;
+        }
+        .category-select {
+            padding: 0.5rem;
+            font-size: 0.85rem;
+        }
+        /* 删除文章按钮 */
+        .btn-delete-article {
+            position: absolute;
+            bottom: 0.5rem;
             right: 0.5rem;
             background-color: #e74c3c;
             color: white;
@@ -180,6 +165,36 @@
         }
         .btn-delete-article:hover {
             background-color: #c0392b;
+        }
+
+        /* PDF上传按钮样式 */
+        .pdf-upload-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+        .btn-upload-pdf {
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .btn-upload-pdf:hover {
+            background-color: #d35400;
+        }
+        .upload-status {
+            font-size: 0.8rem;
+            color: #27ae60;
+            display: none;
+        }
+        .upload-loading {
+            font-size: 0.8rem;
+            color: #f39c12;
+            display: none;
         }
 
         .form-buttons {
@@ -218,31 +233,40 @@
             .edit-container {
                 padding: 1.5rem;
             }
+            .pdf-upload-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .sort-buttons {
+                top: 0.3rem;
+                right: 0.3rem;
+                gap: 0.2rem;
+            }
+            .btn-sort {
+                padding: 0.2rem 0.4rem;
+                font-size: 0.7rem;
+            }
+            .btn-delete-article {
+                bottom: 0.3rem;
+                right: 0.3rem;
+                padding: 0.2rem 0.4rem;
+                font-size: 0.7rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- 登录面板 -->
-    <div class="login-panel" id="loginPanel">
-        <div class="login-card">
-            <h2><i class="fas fa-lock"></i> 编辑页登录</h2>
-            <input type="password" id="loginPwd" placeholder="请输入登录密码">
-            <button id="loginBtn">登录</button>
-            <div class="login-error" id="loginError">密码错误，请重新输入（正确密码：6A212）</div>
-        </div>
-    </div>
-
     <!-- 导航栏 -->
-    <nav class="navbar" id="navbar">
+    <nav class="navbar">
         <div class="navbar-wrap">
-            <h2 class="navbar-title">编辑个人信息与多文章</h2>
+            <h2 class="navbar-title">编辑个人信息与多文章（完整版）</h2>
             <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> 返回成果展示页</a>
         </div>
     </nav>
 
     <!-- 编辑表单 -->
-    <div class="edit-container" id="editContainer">
-        <h2><i class="fas fa-edit"></i> 编辑/添加个人信息与多文章</h2>
+    <div class="edit-container">
+        <h2><i class="fas fa-edit"></i> 编辑/添加个人信息与多文章（支持排序/分类/PDF上传）</h2>
         <form id="memberForm">
             <input type="hidden" id="memberId" value="">
 
@@ -263,9 +287,9 @@
                 </div>
             </div>
 
-            <!-- 多文章编辑区域 -->
+            <!-- 多文章编辑区域 + PDF上传 + 分类 + 排序 -->
             <div class="articles-editor">
-                <h3><i class="fas fa-file-alt"></i> 文章管理（支持添加多篇）</h3>
+                <h3><i class="fas fa-file-alt"></i> 文章管理（支持添加多篇/排序/分类/PDF上传）</h3>
                 <button type="button" class="btn-add-article" id="addArticleBtn">+ 添加新文章</button>
                 <div id="articlesList">
                     <!-- 文章项动态生成 -->
@@ -279,60 +303,26 @@
         </form>
     </div>
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK（包含Storage） -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase.js"></script>
     <script>
-        // ========== 1. 编辑页登录逻辑 ==========
-        const loginPanel = document.getElementById('loginPanel');
-        const loginBtn = document.getElementById('loginBtn');
-        const loginPwd = document.getElementById('loginPwd');
-        const loginError = document.getElementById('loginError');
-        const navbar = document.getElementById('navbar');
-        const editContainer = document.getElementById('editContainer');
-
-        // 登录验证
-        loginBtn.addEventListener('click', () => {
-            const pwd = loginPwd.value.trim();
-            if (pwd === '6A212') {
-                loginPanel.style.display = 'none';
-                navbar.style.display = 'block';
-                editContainer.style.display = 'block';
-                localStorage.setItem('labLoginStatus', 'true');
-                // 加载数据并初始化编辑页
-                initEditPage();
-            } else {
-                loginError.style.display = 'block';
-                setTimeout(() => loginError.style.display = 'none', 3000);
-            }
-        });
-
-        // 刷新页检查登录状态
-        window.onload = () => {
-            const isLogin = localStorage.getItem('labLoginStatus') === 'true';
-            if (isLogin) {
-                loginPanel.style.display = 'none';
-                navbar.style.display = 'block';
-                editContainer.style.display = 'block';
-                initEditPage();
-            }
-        };
-
-        // ========== 2. Firebase配置 + 多文章编辑逻辑 ==========
+        // Firebase配置
         const firebaseConfig = {
             apiKey: "AIzaSyCuOty9CHoB3xeIK05IkKfH_djzjgf2zSg",
             authDomain: "lab-6a212-articles2.firebaseapp.com",
             databaseURL: "https://lab-6a212-articles2-default-rtdb.firebaseio.com/",
             projectId: "lab-6a212-articles2",
-            storageBucket: "lab-6a212-articles2.firebasestorage.app",
+            storageBucket: "lab-6a212-articles2.appspot.com",
             messagingSenderId: "267255024779",
             appId: "1:267255024779:web:6e75a23f6a58c8ae93588e",
             measurementId: "G-NSSTFKD72H"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref("labMembers");
+        const storage = firebase.storage();
 
         let membersData = [];
-        let currentArticles = []; // 当前成员的文章列表
+        let currentArticles = []; // 当前成员的文章列表（含sort/category字段）
         const urlParams = new URLSearchParams(window.location.search);
         const currentMemberId = urlParams.get('id'); // new 或 成员ID
 
@@ -341,7 +331,7 @@
             db.once("value", (snapshot) => {
                 membersData = snapshot.val() ? Object.values(snapshot.val()) : [];
                 
-                // 编辑现有成员：回显基本信息+多文章
+                // 编辑现有成员：回显基本信息+多文章（含sort/category）
                 if (currentMemberId !== 'new') {
                     const member = membersData.find(m => m.id === parseInt(currentMemberId));
                     if (member) {
@@ -349,28 +339,55 @@
                         document.getElementById('name').value = member.name;
                         document.getElementById('studentId').value = member.studentId;
                         document.getElementById('researchField').value = member.researchField;
-                        // 初始化文章列表
-                        currentArticles = member.articles || [];
+                        // 初始化文章列表，确保每篇文章有sort和category字段
+                        currentArticles = member.articles.map((article, index) => ({
+                            id: article.id || Date.now(),
+                            title: article.title || '',
+                            summary: article.summary || '',
+                            link: article.link || '',
+                            isPdf: article.isPdf || false,
+                            category: article.category || 'journal', // 默认分类：期刊论文
+                            sort: article.sort || (index + 1) // 默认排序：按原有顺序
+                        }));
                     }
                 } else {
-                    // 新增成员：初始化空文章列表（默认1篇）
-                    currentArticles = [{ id: Date.now(), title: '', summary: '', link: '' }];
+                    // 新增成员：初始化空文章列表（默认1篇，sort=1，category=journal）
+                    currentArticles = [{ 
+                        id: Date.now(), 
+                        title: '', 
+                        summary: '', 
+                        link: '', 
+                        isPdf: false, 
+                        category: 'journal', 
+                        sort: 1 
+                    }];
                 }
-                // 渲染文章编辑项
+                // 渲染文章编辑项（含排序/分类/PDF上传）
                 renderArticleEditItems();
             });
         }
 
-        // 生成文章编辑项
+        // 生成文章编辑项 + 排序按钮 + 分类下拉框 + PDF上传
         function renderArticleEditItems() {
             const articlesList = document.getElementById('articlesList');
             articlesList.innerHTML = '';
+
+            // 先按sort字段排序，确保渲染顺序正确
+            currentArticles.sort((a, b) => a.sort - b.sort);
 
             currentArticles.forEach((article, index) => {
                 const articleItem = document.createElement('div');
                 articleItem.className = 'article-item-edit';
                 articleItem.innerHTML = `
-                    <button type="button" class="btn-delete-article" data-index="${index}">删除</button>
+                    <!-- 新增：排序按钮组 -->
+                    <div class="sort-buttons">
+                        <button type="button" class="btn-sort btn-up" data-index="${index}" ${index === 0 ? 'disabled' : ''}>
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                        <button type="button" class="btn-sort btn-down" data-index="${index}" ${index === currentArticles.length - 1 ? 'disabled' : ''}>
+                            <i class="fas fa-arrow-down"></i>
+                        </button>
+                    </div>
                     <div class="form-group">
                         <label>文章标题 ${index+1} *</label>
                         <input type="text" class="article-title" value="${article.title || ''}" required placeholder="请输入文章标题">
@@ -381,8 +398,27 @@
                     </div>
                     <div class="form-group">
                         <label>文章链接 ${index+1} *</label>
-                        <input type="text" class="article-link" value="${article.link || ''}" required placeholder="请输入文章链接">
+                        <input type="text" class="article-link" value="${article.link || ''}" required placeholder="可手动输入链接，或点击下方按钮上传PDF">
+                        <div class="pdf-upload-group">
+                            <button type="button" class="btn-upload-pdf" data-index="${index}"><i class="fas fa-upload"></i> 上传PDF文件</button>
+                            <span class="upload-status" data-index="${index}">上传成功！</span>
+                            <span class="upload-loading" data-index="${index}">正在上传...</span>
+                        </div>
                     </div>
+                    <!-- 新增：文章分类下拉框 -->
+                    <div class="category-group">
+                        <label>文章分类 ${index+1}</label>
+                        <select class="category-select" data-index="${index}">
+                            <option value="journal" ${article.category === 'journal' ? 'selected' : ''}>已发表期刊论文</option>
+                            <option value="conference" ${article.category === 'conference' ? 'selected' : ''}>已发表会议论文</option>
+                            <option value="working" ${article.category === 'working' ? 'selected' : ''}>未发表工作论文</option>
+                            <option value="thesis" ${article.category === 'thesis' ? 'selected' : ''}>学位论文</option>
+                        </select>
+                    </div>
+                    <!-- 删除文章按钮 -->
+                    <button type="button" class="btn-delete-article" data-index="${index}">
+                        <i class="fas fa-trash"></i> 删除本文
+                    </button>
                 `;
                 articlesList.appendChild(articleItem);
 
@@ -391,21 +427,112 @@
                     const delIndex = parseInt(e.target.dataset.index);
                     if (currentArticles.length > 1) { // 至少保留1篇
                         currentArticles.splice(delIndex, 1);
+                        // 重新分配sort字段（1,2,3...）
+                        currentArticles.forEach((art, i) => art.sort = i + 1);
                         renderArticleEditItems();
                     } else {
                         alert('至少保留一篇文章哦～');
                     }
                 });
+
+                // 绑定PDF上传事件
+                articleItem.querySelector('.btn-upload-pdf').addEventListener('click', (e) => {
+                    const uploadIndex = parseInt(e.target.dataset.index);
+                    const fileInput = document.createElement('input');
+                    fileInput.type = 'file';
+                    fileInput.accept = '.pdf';
+                    fileInput.onchange = (event) => {
+                        const file = event.target.files[0];
+                        if (file) {
+                            uploadPdfFile(file, uploadIndex);
+                        }
+                    };
+                    fileInput.click();
+                });
+
+                // 新增：绑定分类选择事件
+                articleItem.querySelector('.category-select').addEventListener('change', (e) => {
+                    const catIndex = parseInt(e.target.dataset.index);
+                    currentArticles[catIndex].category = e.target.value;
+                });
+
+                // 新增：绑定排序按钮事件（上移/下移）
+                articleItem.querySelector('.btn-up').addEventListener('click', (e) => {
+                    const upIndex = parseInt(e.target.dataset.index);
+                    if (upIndex > 0) {
+                        // 交换当前文章和上一篇文章的位置
+                        [currentArticles[upIndex], currentArticles[upIndex - 1]] = [currentArticles[upIndex - 1], currentArticles[upIndex]];
+                        // 重新分配sort字段（1,2,3...）
+                        currentArticles.forEach((art, i) => art.sort = i + 1);
+                        renderArticleEditItems();
+                    }
+                });
+                articleItem.querySelector('.btn-down').addEventListener('click', (e) => {
+                    const downIndex = parseInt(e.target.dataset.index);
+                    if (downIndex < currentArticles.length - 1) {
+                        // 交换当前文章和下一篇文章的位置
+                        [currentArticles[downIndex], currentArticles[downIndex + 1]] = [currentArticles[downIndex + 1], currentArticles[downIndex]];
+                        // 重新分配sort字段（1,2,3...）
+                        currentArticles.forEach((art, i) => art.sort = i + 1);
+                        renderArticleEditItems();
+                    }
+                });
             });
+        }
+
+        // PDF上传核心函数：上传到Firebase Storage，获取永久链接
+        function uploadPdfFile(file, index) {
+            document.querySelector(`.upload-loading[data-index="${index}"]`).style.display = 'inline';
+            document.querySelector(`.upload-status[data-index="${index}"]`).style.display = 'none';
+
+            const name = document.getElementById('name').value.trim() || '未知成员';
+            const title = document.querySelectorAll('.article-title')[index].value.trim() || '未知文章';
+            const fileName = `${name}_${title}_${Date.now()}.pdf`;
+
+            const storageRef = storage.ref(`lab-pdfs/${fileName}`);
+            const uploadTask = storageRef.put(file);
+
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log(`上传进度：${progress}%`);
+                },
+                (error) => {
+                    console.error('PDF上传失败：', error);
+                    alert('PDF上传失败，请重试！');
+                    document.querySelector(`.upload-loading[data-index="${index}"]`).style.display = 'none';
+                },
+                () => {
+                    uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                        console.log('PDF上传成功，链接：', downloadURL);
+                        document.querySelectorAll('.article-link')[index].value = downloadURL;
+                        currentArticles[index].link = downloadURL;
+                        currentArticles[index].isPdf = true;
+                        document.querySelector(`.upload-loading[data-index="${index}"]`).style.display = 'none';
+                        document.querySelector(`.upload-status[data-index="${index}"]`).style.display = 'inline';
+                        setTimeout(() => {
+                            document.querySelector(`.upload-status[data-index="${index}"]`).style.display = 'none';
+                        }, 3000);
+                    });
+                }
+            );
         }
 
         // 添加新文章按钮
         document.getElementById('addArticleBtn').addEventListener('click', () => {
-            currentArticles.push({ id: Date.now(), title: '', summary: '', link: '' });
+            currentArticles.push({ 
+                id: Date.now(), 
+                title: '', 
+                summary: '', 
+                link: '', 
+                isPdf: false, 
+                category: 'journal', 
+                sort: currentArticles.length + 1 
+            });
             renderArticleEditItems();
         });
 
-        // 表单提交：保存基本信息+多文章
+        // 表单提交：保存基本信息+多文章（含sort/category/isPdf）
         document.getElementById('memberForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -415,7 +542,62 @@
             const studentId = document.getElementById('studentId').value.trim();
             const researchField = document.getElementById('researchField').value.trim();
 
-            // 收集所有文章信息
-            const articleInputs = document.querySelectorAll('.article-item-edit');
+            // 收集所有文章信息（含sort/category/isPdf）
+            const articleTitles = document.querySelectorAll('.article-title');
+            const articleSummaries = document.querySelectorAll('.article-summary');
+            const articleLinks = document.querySelectorAll('.article-link');
+            const categorySelects = document.querySelectorAll('.category-select');
             const newArticles = [];
-            articleInputs.forEach((item
+            articleTitles.forEach((titleInput, index) => {
+                newArticles.push({
+                    id: currentArticles[index].id || Date.now(),
+                    title: titleInput.value.trim(),
+                    summary: articleSummaries[index].value.trim(),
+                    link: articleLinks[index].value.trim(),
+                    isPdf: currentArticles[index].isPdf || false,
+                    category: categorySelects[index].value,
+                    sort: index + 1 // 最终排序：按编辑页的显示顺序，sort=1,2,3...
+                });
+            });
+
+            // 编辑现有成员
+            if (memberId) {
+                const index = membersData.findIndex(m => m.id === parseInt(memberId));
+                if (index !== -1) {
+                    membersData[index] = {
+                        ...membersData[index],
+                        name, studentId, researchField,
+                        articles: newArticles
+                    };
+                }
+            } else {
+                // 添加新成员
+                const newId = membersData.length > 0 ? Math.max(...membersData.map(m => m.id)) + 1 : 1;
+                membersData.push({
+                    id: newId,
+                    name, studentId, researchField,
+                    articles: newArticles
+                });
+            }
+
+            // 同步到Firebase Realtime Database
+            const dataObj = {};
+            membersData.forEach(member => {
+                dataObj[member.id] = member;
+            });
+            db.set(dataObj)
+                .then(() => {
+                    alert('所有信息保存成功！即将返回成果展示页');
+                    window.location.href = 'index.html';
+                })
+                .catch((error) => {
+                    console.error("保存失败：", error);
+                    alert('保存失败，请重试！');
+                });
+        });
+
+        // 页面加载时初始化
+        window.onload = initEditPage;
+    </script>
+</body>
+</html>
