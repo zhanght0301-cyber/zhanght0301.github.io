@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/favicon.ico/favicon.ico" type="image/x-icon">
     <style>
-        /* 全局样式：匹配截图浅色系+绿色按钮 */
+        /* 全局样式 */
         * {
             margin: 0;
             padding: 0;
@@ -21,7 +21,61 @@
             line-height: 1.6;
         }
 
-        /* 导航栏：新增+匹配整体配色 */
+        /* 登录面板（默认显示，验证后隐藏） */
+        .login-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .login-card {
+            width: 90%;
+            max-width: 400px;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .login-card h2 {
+            color: #3498db;
+            margin-bottom: 1.5rem;
+        }
+        .login-card input {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 1rem 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        .login-card button {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .login-card button:hover {
+            background-color: #27ae60;
+        }
+        .login-error {
+            color: #e74c3c;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        /* 导航栏 */
         .navbar {
             background-color: white;
             border-bottom: 1px solid #eee;
@@ -60,11 +114,12 @@
             background-color: #27ae60;
         }
 
-        /* 内容容器：匹配截图布局 */
+        /* 内容容器 */
         .container {
             width: 90%;
             max-width: 1200px;
             margin: 2rem auto 4rem;
+            display: none; /* 登录后显示 */
         }
         .members-grid {
             display: grid;
@@ -72,7 +127,7 @@
             gap: 1.5rem;
         }
 
-        /* 成员卡片：完全匹配截图视觉 */
+        /* 成员卡片 */
         .member-card {
             background-color: white;
             border-radius: 8px;
@@ -91,9 +146,6 @@
             align-items: center;
             gap: 0.5rem;
         }
-        .member-info h2 i {
-            font-size: 1rem;
-        }
         .member-info p {
             color: #666;
             font-size: 0.9rem;
@@ -102,7 +154,7 @@
             border-bottom: 1px solid #eee;
         }
 
-        /* 文章列表：匹配截图样式 */
+        /* 多文章列表样式 */
         .member-articles h3 {
             color: #3498db;
             font-size: 1rem;
@@ -116,6 +168,7 @@
             padding: 0.8rem 1rem;
             border-radius: 6px;
             margin-bottom: 0.8rem;
+            position: relative;
         }
         .article-item h4 {
             font-size: 0.95rem;
@@ -139,7 +192,7 @@
             text-decoration: underline;
         }
 
-        /* 编辑按钮：匹配截图绿色样式 */
+        /* 编辑按钮 */
         .btn-edit {
             margin-top: 1rem;
             background-color: #2ecc71;
@@ -155,20 +208,21 @@
             background-color: #27ae60;
         }
 
-        /* 页脚样式 */
+        /* 页脚 */
         footer {
             background-color: white;
             border-top: 1px solid #eee;
             text-align: center;
             padding: 1.5rem 0;
             margin-top: 2rem;
+            display: none; /* 登录后显示 */
         }
         footer p {
             color: #666;
             font-size: 0.9rem;
         }
 
-        /* 响应式适配 */
+        /* 响应式 */
         @media (max-width: 768px) {
             .navbar-wrap {
                 flex-direction: column;
@@ -182,7 +236,17 @@
     </style>
 </head>
 <body>
-    <!-- 新增导航栏 -->
+    <!-- 登录面板 -->
+    <div class="login-panel" id="loginPanel">
+        <div class="login-card">
+            <h2><i class="fas fa-lock"></i> 实验室成果页登录</h2>
+            <input type="password" id="loginPwd" placeholder="请输入登录密码">
+            <button id="loginBtn">登录</button>
+            <div class="login-error" id="loginError">密码错误，请重新输入（正确密码：6A212）</div>
+        </div>
+    </div>
+
+    <!-- 导航栏 -->
     <nav class="navbar">
         <div class="navbar-wrap">
             <h2 class="navbar-title">6A212实验室 - 论文成果展示</h2>
@@ -193,20 +257,60 @@
     </nav>
 
     <!-- 成员成果展示区 -->
-    <div class="container">
+    <div class="container" id="mainContainer">
         <div class="members-grid" id="membersContainer">
             <!-- 卡片由JS自动渲染 -->
         </div>
     </div>
 
-    <footer>
+    <footer id="footer">
         <p>6A212实验小组成果展示 | 最后更新时间：<span id="updateTime"></span></p>
     </footer>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase.js"></script>
     <script>
-        // Firebase配置
+        // ========== 1. 登录验证逻辑 ==========
+        const loginPanel = document.getElementById('loginPanel');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginPwd = document.getElementById('loginPwd');
+        const loginError = document.getElementById('loginError');
+        const mainContainer = document.getElementById('mainContainer');
+        const footer = document.getElementById('footer');
+
+        // 登录按钮点击事件
+        loginBtn.addEventListener('click', () => {
+            const pwd = loginPwd.value.trim();
+            if (pwd === '6A212') {
+                // 密码正确：隐藏登录面板，显示内容
+                loginPanel.style.display = 'none';
+                mainContainer.style.display = 'block';
+                footer.style.display = 'block';
+                // 存储登录状态（刷新后免登，可选）
+                localStorage.setItem('labLoginStatus', 'true');
+                // 加载成员数据
+                loadMembers();
+            } else {
+                // 密码错误：显示提示
+                loginError.style.display = 'block';
+                setTimeout(() => {
+                    loginError.style.display = 'none';
+                }, 3000);
+            }
+        });
+
+        // 刷新页面时检查登录状态（可选）
+        window.onload = () => {
+            const isLogin = localStorage.getItem('labLoginStatus') === 'true';
+            if (isLogin) {
+                loginPanel.style.display = 'none';
+                mainContainer.style.display = 'block';
+                footer.style.display = 'block';
+                loadMembers();
+            }
+        };
+
+        // ========== 2. Firebase配置 + 多文章数据逻辑 ==========
         const firebaseConfig = {
             apiKey: "AIzaSyCuOty9CHoB3xeIK05IkKfH_djzjgf2zSg",
             authDomain: "lab-6a212-articles2.firebaseapp.com",
@@ -222,7 +326,7 @@
 
         let membersData = [];
 
-        // 加载成员数据
+        // 加载成员+多文章数据
         function loadMembers() {
             db.on("value", (snapshot) => {
                 const data = snapshot.val();
@@ -233,8 +337,8 @@
                         studentId: "2023001",
                         researchField: "机器学习与数据挖掘",
                         articles: [
-                            { title: "基于深度学习的实验数据分类研究", summary: "本文提出了一种改进的CNN模型，用于实验数据的快速分类，准确率提升15%。", link: "#" },
-                            { title: "实验室数据预处理方法优化", summary: "针对实验数据的噪声问题，优化了预处理流程，降低数据误差率。", link: "#" }
+                            { id: 101, title: "基于深度学习的实验数据分类研究", summary: "准确率提升15%", link: "#" },
+                            { id: 102, title: "实验室数据预处理方法优化", summary: "降低数据误差率", link: "#" }
                         ]
                     },
                     {
@@ -243,17 +347,7 @@
                         studentId: "2023002",
                         researchField: "实验装置与算法优化",
                         articles: [
-                            { title: "XX实验装置的精度提升方案", summary: "分析了现有实验装置的误差来源，提出机械结构改进方案，精度提升20%。", link: "#" }
-                        ]
-                    },
-                    {
-                        id: 3,
-                        name: "王五",
-                        studentId: "2023003",
-                        researchField: "实验结果分析与可视化",
-                        articles: [
-                            { title: "实验数据可视化工具的设计与实现", summary: "开发了一款适配本实验室数据的可视化工具，支持多维度数据展示。", link: "#" },
-                            { title: "多组实验结果的对比分析报告", summary: "对比了不同实验参数下的结果，总结出最优实验条件。", link: "#" }
+                            { id: 201, title: "XX实验装置的精度提升方案", summary: "精度提升20%", link: "#" }
                         ]
                     }
                 ];
@@ -261,13 +355,14 @@
             });
         }
 
-        // 渲染成员卡片（保留编辑按钮+点击跳转）
+        // 渲染成员+多文章卡片
         function renderMembers() {
             const container = document.getElementById('membersContainer');
             container.innerHTML = '';
 
             membersData.forEach(member => {
                 let articlesHtml = '';
+                // 遍历多篇文章渲染
                 member.articles.forEach(article => {
                     articlesHtml += `
                         <div class="article-item">
@@ -285,10 +380,10 @@
                             <p>学号：${member.studentId} | 研究方向：${member.researchField}</p>
                         </div>
                         <div class="member-articles">
-                            <h3><i class="fas fa-file-alt"></i> 发表/完成文章</h3>
+                            <h3><i class="fas fa-file-alt"></i> 发表/完成文章（共${member.articles.length}篇）</h3>
                             ${articlesHtml}
                         </div>
-                        <button class="btn-edit" onclick="window.location.href='edit.html?id=${member.id}'">编辑我的信息</button>
+                        <button class="btn-edit" onclick="window.location.href='edit.html?id=${member.id}'">编辑我的信息/文章</button>
                     </div>
                 `;
                 container.innerHTML += cardHtml;
@@ -296,9 +391,6 @@
 
             document.getElementById('updateTime').textContent = new Date().toLocaleString();
         }
-
-        // 初始化加载
-        loadMembers();
     </script>
 </body>
 </html>
