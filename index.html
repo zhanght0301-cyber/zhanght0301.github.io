@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6A212实验室 - 论文成果展示（公网可编辑版）</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 全局样式（保留你原有样式，仅新增表单和按钮样式） */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "微软雅黑", "Arial", sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* 新增：编辑表单样式（核心，成员用来编辑信息） */
+        .edit-form-container {
+            width: 90%;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        }
+        .edit-form-container h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.6rem;
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 500;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            resize: vertical;
+        }
+        .form-group textarea {
+            min-height: 80px;
+        }
+        .form-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .btn-submit {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-submit:hover {
+            background-color: #2980b9;
+        }
+        .btn-reset {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .btn-reset:hover {
+            background-color: #c0392b;
+        }
+        .member-card .btn-edit {
+            margin-top: 1rem;
+            background-color: #2ecc71;
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .member-card .btn-edit:hover {
+            background-color: #27ae60;
+        }
+
+        /* 原有样式：内容容器 */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 4rem;
+        }
+
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .member-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+        .member-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .member-info {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+        .member-info h2 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .member-info h2 i {
+            color: #3498db;
+        }
+        .member-info p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .member-articles h3 {
+            color: #3498db;
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .article-item {
+            background-color: #f8f9fa;
+            padding: 0.8rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 0.8rem;
+        }
+        .article-item h4 {
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+        .article-item p {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        .article-item a {
+            color: #3498db;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .article-item a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: 2rem;
+        }
+        footer p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+            .member-card {
+                padding: 1.2rem;
+            }
+            .form-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>6A212实验室 - 实验室论文成果</h1>
+        <p>研究生学术文章列表 | 支持跨网络自主编辑</p>
+    </header>
+
+    <!-- 编辑/添加信息的表单（核心，成员操作入口） -->
+    <div class="edit-form-container">
+        <h2><i class="fas fa-edit"></i> 编辑/添加个人论文信息</h2>
+        <form id="memberForm">
+            <input type="hidden" id="memberId" value=""> <!-- 隐藏ID，用于编辑识别 -->
+
+            <div class="form-group">
+                <label for="name">姓名 *</label>
+                <input type="text" id="name" required placeholder="请输入你的姓名">
+            </div>
+            <div class="form-group">
+                <label for="studentId">学号 *</label>
+                <input type="text" id="studentId" required placeholder="请输入你的学号">
+            </div>
+            <div class="form-group">
+                <label for="researchField">研究方向 *</label>
+                <input type="text" id="researchField" required placeholder="请输入你的研究方向">
+            </div>
+            <div class="form-group">
+                <label for="articleTitle">文章标题 *</label>
+                <input type="text" id="articleTitle" required placeholder="请输入文章标题">
+            </div>
+            <div class="form-group">
+                <label for="articleSummary">文章摘要</label>
+                <textarea id="articleSummary" placeholder="请输入文章简要介绍（可选）"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="articleLink">文章链接 *</label>
+                <input type="text" id="articleLink" required placeholder="PDF在线链接/知网链接/百度网盘链接等">
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="btn btn-submit">保存信息</button>
+                <button type="reset" class="btn btn-reset">清空表单</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 成员成果展示区（动态渲染） -->
+    <div class="container">
+        <div class="members-grid" id="membersContainer">
+            <!-- 卡片由JS自动渲染 -->
+        </div>
+    </div>
+
+    <footer>
+        <p>6A212实验小组成果展示页 | 最后更新时间：<span id="updateTime"></span></p>
+        <p>支持跨网络访问与编辑 | 数据存储于云端</p>
+    </footer>
+
+    <!-- 1. 引入Firebase SDK（云数据库核心，无需下载） -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js"></script>
+
+    <script>
+        // ========== 2. Firebase 配置（后续你需要替换成自己的配置） ==========
+        const firebaseConfig = {
+            // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCuOty9CHoB3xeIK05IkKfH_djzjgf2zSg",
+  authDomain: "lab-6a212-articles2.firebaseapp.com",
+  projectId: "lab-6a212-articles2",
+  storageBucket: "lab-6a212-articles2.firebasestorage.app",
+  messagingSenderId: "267255024779",
+  appId: "1:267255024779:web:6e75a23f6a58c8ae93588e",
+  measurementId: "G-NSSTFKD72H"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+        };
+
+        // 初始化Firebase
+        firebase.initializeApp(firebaseConfig);
+        // 初始化数据库引用
+        const db = firebase.database().ref("labMembers");
+
+        let membersData = []; // 存储所有成员数据
+
+        // 3. 从云数据库加载数据（跨网络同步核心）
+        function loadMembers() {
+            db.on("value", (snapshot) => {
+                const data = snapshot.val();
+                membersData = data ? Object.values(data) : [
+                    // 默认初始数据（你的原有成员）
+                    {
+                        id: 1,
+                        name: "张三",
+                        studentId: "2023001",
+                        researchField: "机器学习与数据挖掘",
+                        articles: [
+                            { title: "基于深度学习的实验数据分类研究", summary: "本文提出了一种改进的CNN模型，用于实验数据的快速分类，准确率提升15%。", link: "#" },
+                            { title: "实验室数据预处理方法优化", summary: "针对实验数据的噪声问题，优化了预处理流程，降低数据误差率。", link: "#" }
+                        ]
+                    },
+                    {
+                        id: 2,
+                        name: "李四",
+                        studentId: "2023002",
+                        researchField: "实验装置与算法优化",
+                        articles: [
+                            { title: "XX实验装置的精度提升方案", summary: "分析了现有实验装置的误差来源，提出机械结构改进方案，精度提升20%。", link: "#" }
+                        ]
+                    },
+                    {
+                        id: 3,
+                        name: "王五",
+                        studentId: "2023003",
+                        researchField: "实验结果分析与可视化",
+                        articles: [
+                            { title: "实验数据可视化工具的设计与实现", summary: "开发了一款适配本实验室数据的可视化工具，支持多维度数据展示。", link: "#" },
+                            { title: "多组实验结果的对比分析报告", summary: "对比了不同实验参数下的结果，总结出最优实验条件。", link: "#" }
+                        ]
+                    }
+                ];
+                renderMembers();
+            }, (error) => {
+                console.error("加载数据失败：", error);
+                alert("加载云端数据失败，请检查网络或Firebase配置！");
+            });
+        }
+
+        // 4. 渲染成员卡片到页面
+        function renderMembers() {
+            const container = document.getElementById('membersContainer');
+            container.innerHTML = '';
+
+            membersData.forEach(member => {
+                let articlesHtml = '';
+                member.articles.forEach(article => {
+                    articlesHtml += `
+                        <div class="article-item">
+                            <h4>${article.title}</h4>
+                            <p>${article.summary || '无摘要'}</p>
+                            <a href="${article.link}" target="_blank"><i class="fas fa-link"></i> 查看完整文章</a>
+                        </div>
+                    `;
+                });
+
+                const cardHtml = `
+                    <div class="member-card" data-id="${member.id}">
+                        <div class="member-info">
+                            <h2><i class="fas fa-user-graduate"></i> ${member.name}</h2>
+                            <p>学号：${member.studentId} | 研究方向：${member.researchField}</p>
+                        </div>
+                        <div class="member-articles">
+                            <h3><i class="fas fa-file-alt"></i> 发表/完成文章</h3>
+                            ${articlesHtml}
+                        </div>
+                        <button class="btn-edit" onclick="editMember(${member.id})">编辑我的信息</button>
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+
+            // 更新页脚时间
+            document.getElementById('updateTime').textContent = new Date().toLocaleString();
+        }
+
+        // 5. 编辑成员信息：回显到表单
+        function editMember(id) {
+            const member = membersData.find(m => m.id === id);
+            if (!member) return;
+
+            document.getElementById('memberId').value = member.id;
+            document.getElementById('name').value = member.name;
+            document.getElementById('studentId').value = member.studentId;
+            document.getElementById('researchField').value = member.researchField;
+
+            const firstArticle = member.articles[0] || {};
+            document.getElementById('articleTitle').value = firstArticle.title || '';
+            document.getElementById('articleSummary').value = firstArticle.summary || '';
+            document.getElementById('articleLink').value = firstArticle.link || '';
+
+            // 滚动到表单区域
+            document.querySelector('.edit-form-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 6. 表单提交：添加/修改 + 同步到云数据库（跨网络同步核心）
+        document.getElementById('memberForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const memberId = parseInt(document.getElementById('memberId').value);
+            const name = document.getElementById('name').value.trim();
+            const studentId = document.getElementById('studentId').value.trim();
+            const researchField = document.getElementById('researchField').value.trim();
+            const articleTitle = document.getElementById('articleTitle').value.trim();
+            const articleSummary = document.getElementById('articleSummary').value.trim();
+            const articleLink = document.getElementById('articleLink').value.trim();
+
+            const articleData = { title: articleTitle, summary: articleSummary, link: articleLink };
+
+            if (memberId) {
+                // 编辑已有成员
+                const index = membersData.findIndex(m => m.id === memberId);
+                if (index !== -1) {
+                    membersData[index] = {
+                        ...membersData[index],
+                        name, studentId, researchField,
+                        articles: [articleData, ...membersData[index].articles.slice(1)]
+                    };
+                }
+            } else {
+                // 添加新成员
+                const newId = membersData.length > 0 ? Math.max(...membersData.map(m => m.id)) + 1 : 1;
+                membersData.push({
+                    id: newId,
+                    name, studentId, researchField,
+                    articles: [articleData]
+                });
+            }
+
+            // 同步到云数据库（关键：跨网络共享的核心）
+            const dataObj = {};
+            membersData.forEach(member => {
+                dataObj[member.id] = member;
+            });
+            db.set(dataObj)
+                .then(() => {
+                    renderMembers();
+                    this.reset();
+                    document.getElementById('memberId').value = '';
+                    alert('信息保存成功！所有网络的成员均可看到更新！');
+                })
+                .catch((error) => {
+                    console.error("保存数据失败：", error);
+                    alert('保存失败，请检查网络或Firebase配置！');
+                });
+        });
+
+        // 初始化加载数据
+        loadMembers();
+    </script>
+</body>
+</html>
