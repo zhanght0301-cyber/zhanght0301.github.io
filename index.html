@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>6A212实验室 - 论文成果展示（公网可编辑版）</title>
+    <title>6A212实验室 - 论文成果展示（云同步版）</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 新增favicon，消除404报错 -->
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/favicon.ico/favicon.ico" type="image/x-icon">
     <style>
-        /* 全局样式（保留你原有样式，仅新增表单和按钮样式） */
         * {
             margin: 0;
             padding: 0;
@@ -39,7 +37,6 @@
             opacity: 0.9;
         }
 
-        /* 新增：编辑表单样式（核心，成员用来编辑信息） */
         .edit-form-container {
             width: 90%;
             max-width: 800px;
@@ -119,7 +116,6 @@
             background-color: #27ae60;
         }
 
-        /* 原有样式：内容容器 */
         .container {
             width: 90%;
             max-width: 1200px;
@@ -228,14 +224,13 @@
 <body>
     <header>
         <h1>6A212实验室 - 实验室论文成果</h1>
-        <p>研究生学术文章列表 | 支持跨网络自主编辑</p>
+        <p>研究生学术文章列表 | 跨网络云同步版</p>
     </header>
 
-    <!-- 编辑/添加信息的表单（核心，成员操作入口） -->
     <div class="edit-form-container">
         <h2><i class="fas fa-edit"></i> 编辑/添加个人论文信息</h2>
         <form id="memberForm">
-            <input type="hidden" id="memberId" value=""> <!-- 隐藏ID，用于编辑识别 -->
+            <input type="hidden" id="memberId" value="">
 
             <div class="form-group">
                 <label for="name">姓名 *</label>
@@ -269,29 +264,26 @@
         </form>
     </div>
 
-    <!-- 成员成果展示区（动态渲染） -->
     <div class="container">
         <div class="members-grid" id="membersContainer">
-            <!-- 卡片由JS自动渲染 -->
+            <!-- 卡片自动渲染 -->
         </div>
     </div>
 
     <footer>
         <p>6A212实验小组成果展示页 | 最后更新时间：<span id="updateTime"></span></p>
-        <p>支持跨网络访问与编辑 | 数据存储于云端</p>
+        <p>数据存储于Firebase云端 | 跨网络同步可见</p>
     </footer>
 
-    <!-- 替换为8.x版本Firebase SDK（无模块化，兼容普通HTML） -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- 引入Firebase 8.x完整SDK（无模块化语法） -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase.js"></script>
 
     <script>
-        // ========== 修正：纯Firebase配置（无嵌套代码） ==========
+        // 正确的Firebase配置（含你截图中的数据库URL）
         const firebaseConfig = {
             apiKey: "AIzaSyCuOty9CHoB3xeIK05IkKfH_djzjgf2zSg",
             authDomain: "lab-6a212-articles2.firebaseapp.com",
-            // 补充实时数据库URL（必须！从Firebase控制台复制）
-            databaseURL: "https://lab-6a212-articles2-default-rtdb.firebaseio.com",
+            databaseURL: "https://lab-6a212-articles2-default-rtdb.firebaseio.com/",
             projectId: "lab-6a212-articles2",
             storageBucket: "lab-6a212-articles2.firebasestorage.app",
             messagingSenderId: "267255024779",
@@ -299,18 +291,17 @@
             measurementId: "G-NSSTFKD72H"
         };
 
-        // 8.x版本初始化语法（删除9.x的initializeApp/analytics）
+        // 初始化Firebase（8.x语法）
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref("labMembers");
 
-        let membersData = []; // 存储所有成员数据
+        let membersData = [];
 
-        // 3. 从云数据库加载数据（跨网络同步核心）
+        // 从Firebase加载数据
         function loadMembers() {
             db.on("value", (snapshot) => {
                 const data = snapshot.val();
                 membersData = data ? Object.values(data) : [
-                    // 默认初始数据（你的原有成员）
                     {
                         id: 1,
                         name: "张三",
@@ -343,13 +334,13 @@
                 ];
                 renderMembers();
             }, (error) => {
-                console.error("加载数据失败：", error);
-                alert("加载云端数据失败，使用本地默认数据！");
-                renderMembers(); // 即使加载失败，也渲染默认数据
+                console.error("加载云端数据失败：", error);
+                alert("云端数据加载失败，使用本地默认数据！");
+                renderMembers();
             });
         }
 
-        // 4. 渲染成员卡片到页面
+        // 渲染成员卡片
         function renderMembers() {
             const container = document.getElementById('membersContainer');
             container.innerHTML = '';
@@ -382,11 +373,10 @@
                 container.innerHTML += cardHtml;
             });
 
-            // 更新页脚时间
             document.getElementById('updateTime').textContent = new Date().toLocaleString();
         }
 
-        // 5. 编辑成员信息：回显到表单
+        // 编辑信息回显
         function editMember(id) {
             const member = membersData.find(m => m.id === id);
             if (!member) return;
@@ -401,11 +391,10 @@
             document.getElementById('articleSummary').value = firstArticle.summary || '';
             document.getElementById('articleLink').value = firstArticle.link || '';
 
-            // 滚动到表单区域
             document.querySelector('.edit-form-container').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // 6. 表单提交：添加/修改 + 同步到云数据库（跨网络同步核心）
+        // 表单提交保存到Firebase
         document.getElementById('memberForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -420,7 +409,6 @@
             const articleData = { title: articleTitle, summary: articleSummary, link: articleLink };
 
             if (memberId) {
-                // 编辑已有成员
                 const index = membersData.findIndex(m => m.id === memberId);
                 if (index !== -1) {
                     membersData[index] = {
@@ -430,7 +418,6 @@
                     };
                 }
             } else {
-                // 添加新成员
                 const newId = membersData.length > 0 ? Math.max(...membersData.map(m => m.id)) + 1 : 1;
                 membersData.push({
                     id: newId,
@@ -439,7 +426,7 @@
                 });
             }
 
-            // 同步到云数据库（关键：跨网络共享的核心）
+            // 同步到Firebase
             const dataObj = {};
             membersData.forEach(member => {
                 dataObj[member.id] = member;
@@ -449,16 +436,16 @@
                     renderMembers();
                     this.reset();
                     document.getElementById('memberId').value = '';
-                    alert('信息保存成功！所有网络的成员均可看到更新！');
+                    alert('信息保存成功！所有成员均可看到更新！');
                 })
                 .catch((error) => {
-                    console.error("保存数据失败：", error);
+                    console.error("保存失败：", error);
                     alert('保存失败，仅本地显示！');
-                    renderMembers(); // 即使保存失败，也渲染本地数据
+                    renderMembers();
                 });
         });
 
-        // 初始化加载数据
+        // 初始化加载
         loadMembers();
     </script>
 </body>
